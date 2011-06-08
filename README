@@ -1,0 +1,31 @@
+Running with
+ JTB 1.4.4
+ Javacc 5.0
+
+First visitor:
+Walk the Syntax Tree
+  generate statements table (Integer->String)
+  generate another table that map function to a list of statements
+  generate another tree, hold only these element
+
+  This organization resemble Featherweight X10's architecture.
+
+    l_s:      labeled statement
+    s1; s2    sequence of statement
+    async(s)
+    finish(s)
+    loop(s)
+    
+    Function
+
+Second visitor:
+Apply MHP fomula to generated tree, every node have {M, O, L}
+
+Print out M info at last
+
+
+
+Problem:
+1. How to handle function calls, more importantly, recursive function calls.
+  That func1 calls func1, or func1 calls func2 which calls func1.
+2. How to translate miniX10 structures into these elementary representation.
