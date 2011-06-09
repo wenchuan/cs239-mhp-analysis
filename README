@@ -1,37 +1,163 @@
-Running with
- JTB 1.4.4
- Javacc 5.0
+CS239 Homework 2
 
-First visitor:
-Walk the Syntax Tree
-  generate statements table (Integer->String)
-  generate another table that map function to a list of statements
-  generate another tree, hold only these element
+May Happen in Parallel Information Analysis
 
-  This organization resemble Featherweight X10's architecture.
+Wenchuan Weng
+wenchuan@cs.ucla.edu
+---------------------------------------------------------------
 
-    l_s:      labeled statement
-    s1; s2    sequence of statement
-    async(s)
-    finish(s)
-    loop(s)
-    
-    Function
+0. Guide to code
+--------------------
+    .
+    ├── Main.java
+    ├── Makefile
+    ├── MapReduce.x10
+    ├── mhp
+    │   ├── MhpAsyncNode.java
+    │   ├── MhpFinishNode.java
+    │   ├── MhpFunctionNode.java
+    │   ├── MhpIfelseNode.java
+    │   ├── MhpInfoGenerator.java
+    │   ├── MhpInfo.java
+    │   ├── MhpLabelNode.java
+    │   ├── MhpLoopNode.java
+    │   ├── MhpNode.java
+    │   ├── MhpSequenceNode.java
+    │   └── MhpVisitor.java
+    ├── miniX10.jj
+    ├── README
+    ├── Series.x10
+    ├── testall.sh
+    └── Test.x10
 
-Second visitor:
-Apply MHP fomula to generated tree, every node have {M, O, L}
+  The submitted source files consists of the above files.
 
-Print out M info at last
+  0. Main.java
+    Take in a miniX10 program from standard input.
+    Calls TreeDumper to print the syntax tree, then calls MhpVisitor to
+    analysis the program.
+
+  1. Makefile
+    provides several easy to use target
+    "make run" recompile the program and runs it with Test.x10
+    "make build" rebuild the entire project
+    "make clean/realclean" clean the class files / all auto-generated files
+
+  2. MapReduce.x10, Series.x10, Test.x10
+    Three example miniX10 program. I wrote Test.x10 myself, resembles the
+    example from class.
+
+  3. mhp/MhpVisitor.java
+    A Visitor, all the hard works are in this file.
+
+  4. mhp/Mhp*Node.java
+    These class is my internal representation for miniX10 program, the syntax
+    resemble that of FeatherWeight X10 (FX10).
+
+  5. mhp/MhpInfo*.java
+    Hierarchical data structure used to represent and calculate M,O,L infos.
 
 
+1. Tools required
+--------------------
+  0. JTB 1.4.4
+    Java Tree Builder.
 
-Problem:
-1. How to handle function calls, more importantly, recursive function calls.
-  That func1 calls func1, or func1 calls func2 which calls func1.
-  Answer:
-    I can unfold the loops for a couple of times, and just process the
-    code based on that. And the trick works for function calls both recursive
-    and very deep ones.
-2. How to translate miniX10 structures into these elementary representation.
-  Answer:
-  turn out that I need an auxilary structure for if-else
+  1. Javacc 5.0
+    Java Compiler Compiler
+
+
+2. Algorithm description
+--------------------
+  0. General description
+    I solve the MHP problem in 3 stages.
+
+    First, walk the miniX10 syntax tree, generate a dictionary that translate
+    Integer (statement label) to String (the actual source code); At the same
+    time, generate another MhpNode tree, only consists of the following
+    structure: Async, Finish, Loop, Sequence, Label, If-else, Function-call;
+
+    Second, Unfold the MhpNode tree. This step is designed to solve the
+    problem of function calls. With enough unfolding, recursive calls and
+    very complex calls can be unfold and analyzed correctly.
+
+    Third, walk the unfolded MhpNode tree, generate MhpInfo tree. At the same
+    time reduce the tree into a single node, using the rules discussed on the
+    class.
+
+  1. Stage one: miniX10 ----------> MhpNode forest
+    The design of MhpNode Tree is based on our discussion in the class, and
+    FX10. Visitor pattern is used to generate the MhpNode tree. At this step,
+    each function in every class generate a tree. And this info is tracked by
+    a dictionary of type Map<String, MhpNode>;
+
+  2. Stage two: MhpNode forest ----unfolding---> MhpNode Tree
+    This is really the tricky part.
+    After realizing that a function that calls itself behave essentially like
+    a loop, and loop is essentially like a sequence with the same statements
+    chained together. A -> B -> C -> A is three functions calls each other
+    forming a loop, which is a quite nasty situation. And this can be unfolded
+    4 times in to a long sequence, but the result is the same.
+
+  3. Stage Three: MhpNode Tree ---------->  MhpInfo
+    Now with a single tree, reduction using rules become easy. This is done,
+    again, using Visitor Pattern.
+
+
+3. How to run this code
+--------------------
+  0. if you have all the tools (JTB, JavaCC, Java)
+    "make build"
+    "make"
+  
+  1. if you are not sure and you are using Debian based distros
+    "sudo apt-get install sun-java6-jdk jtb javacc"
+    "make build"
+    "make"
+
+  2. otherwise
+    I don't know yet. Mail me for further info.
+
+
+4. What the output means
+--------------------
+ "make"
+ |--------------MHP---------------
+ |****T.f
+ |Async - (L0)
+ |****T.run
+ |Seq - (Finish - (Seq - (Async - (L1); FunctionCall - (T.f))); Finish - (Seq - (FunctionCall - (T.f); Async - (L5))))
+ |****Test.main
+ |FunctionCall - (T.run)
+ |------------------
+ |Expression list:
+ |L0: a5
+ |L1: a3
+ |L2: a4
+ |L3: a4
+ |L4: a4
+ |L5: a4
+ |------------------
+ |After Unfold:
+ |Seq - (Finish - (Seq - (Async - (L1); Async - (L0))); Finish - (Seq - (Async - (L0); Async - (L5))))
+ |
+ |-------------MHP Info------------
+ |{"a3" ,"a5"}
+ |{"a5" ,"a4"}
+
+  Above is a sample output of a run.
+
+  After print the original source file;
+  0. The first part print the MhpNode trees for each functions;
+  1. The second part print out label and expression correspondence;
+  2. That's the unfolded the MhpNode tree;
+  3. The final MHP info.
+
+
+5. Other words
+--------------------
+  I finished this homework alone, which is quite an experience.
+  Learned a lot of stuff during the process.
+  How to handle the function calls really kept me uneasy for several days.
+  This is a good piece of homework assignment.
+  Thank you.

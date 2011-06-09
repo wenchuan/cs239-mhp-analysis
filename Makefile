@@ -1,6 +1,6 @@
 run:
 	javac Main.java
-	java Main < MapReduce.x10
+	java Main < Test.x10
 
 build: clean
 	jtb -jd -pp -printer -f miniX10.jj
@@ -19,4 +19,4 @@ clean:
 	rm -rf *.class visitor/*.class syntaxtree/*.class mhp/*.class
 
 realclean: clean
-	rm -rf *.class visitor syntaxtree Parse* Mini* Token* JavaCharStream.java tags
+	rm -rf *.class visitor syntaxtree Parse* Mini* Token* JavaCharStream.java tags jtb.out.*

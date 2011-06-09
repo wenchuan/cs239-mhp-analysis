@@ -20,7 +20,10 @@ public class MhpVisitor extends DepthFirstRetVisitor<MhpNode> {
 	public MhpNode visit(final File n) {
 		// walk the syntax tree, generate MhpNodes
 		n.nodeListOptional.accept(this);
-		
+
+		MhpNode root = functions.get(mainClassName + ".main");
+		root = root.accept(this, 3);
+			
 		for (final Iterator<String> e = functions.keySet().iterator(); e.hasNext();) {
 			String str = e.next();
 			System.out.println("****" + str);
@@ -31,18 +34,23 @@ public class MhpVisitor extends DepthFirstRetVisitor<MhpNode> {
 		System.out.println("------------------\nExpression list:");
 		for (int i = 0; i < dict.size(); i++)
 			System.out.println("L" + i + ": " + dict.get(i));
-		
-		MhpNode root = functions.get(mainClassName + ".main");
-		root = root.accept(this, 2);
-		
+			
 		System.out.println("------------------\nAfter Unfold:");
 		System.out.println(root);
 
-//		MhpInfoGenerator gen = new MhpInfoGenerator();
-//		root.accept(gen);
-//		gen.printMhp();
+		MhpInfoGenerator gen = new MhpInfoGenerator();
+    System.out.println("\n-------------MHP Info------------");
+		printMhp(root.accept(gen));
 		
 		return null;
+	}
+
+	private void printMhp(MhpInfo m) {
+		Iterator<Pair> it;
+		for (it = m.M.iterator(); it.hasNext();){
+			Pair p = it.next();
+			System.out.println("{\"" + dict.get(p.fst) + "\" ,\"" +  dict.get(p.snd) + "\"}");
+		}
 	}
 	
 	public MhpNode unfold(final MhpLabelNode n, final int level) {
@@ -117,11 +125,8 @@ public class MhpVisitor extends DepthFirstRetVisitor<MhpNode> {
 			for (final Iterator<INode> e = n.nodeListOptional.elements(); e.hasNext();) {
 				INode i = e.next();
 				if (i instanceof ClassMember) {
-					// TODO N.B. ConstantDeclaration in nodeListOptinal could contain expressions
 					if (((ClassMember) i).nodeChoice.choice instanceof MethodDeclaration) {
 						MethodDeclaration m = (MethodDeclaration) (((ClassMember) i).nodeChoice.choice);
-						System.out.println("This is a method:" + className
-								+ "." + m.identifier.nodeToken);
 						MhpNode sRes = m.block.accept(this);
 						functions.put(className + "." + m.identifier.nodeToken, sRes);
 					}
@@ -183,8 +188,8 @@ public class MhpVisitor extends DepthFirstRetVisitor<MhpNode> {
 
 	public MhpNode visit(final AsyncStatement n) {
 		// Seq place expression and the async expression
-		return new MhpSequenceNode(n.expression.accept(this), new MhpAsyncNode(
-				n.block.accept(this)));
+		//return new MhpSequenceNode(n.expression.accept(this), new MhpAsyncNode(n.block.accept(this)));
+		return new MhpAsyncNode(n.block.accept(this));
 	}
 
 	public MhpNode visit(final FinishStatement n) {

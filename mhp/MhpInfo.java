@@ -5,6 +5,11 @@ import java.util.*;
 class Pair {
 	public Integer fst;
 	public Integer snd;
+	
+	public boolean equals(Object p) {
+		return this.fst == ((Pair)p).fst && this.snd == ((Pair)p).snd;
+	}
+	
 	public Pair(Integer fst, Integer snd) {
 		this.fst = fst;
 		this.snd = snd;
@@ -30,9 +35,30 @@ public class MhpInfo {
 	public static Set<Pair> cross(Set<Integer> fst, Set<Integer> snd) {
 		Set<Pair> res = new HashSet<Pair>();
 		Iterator<Integer> i, j;
-		for (i = fst.iterator(); i.hasNext(); )
+		Integer temp = 0;
+		for (i = fst.iterator(); i.hasNext(); ) {
+			temp = i.next();
 			for (j = snd.iterator(); j.hasNext(); )
-				res.add(new Pair(i.next(), j.next()));
+				res.add(new Pair(temp, j.next()));
+		}
 		return res;
+	}
+	
+	public String toString() {
+		String string = "";
+		string += "M: ";
+		for (Iterator<Pair> it = M.iterator(); it.hasNext();) {
+			Pair p = it.next();
+			string += "(" + p.fst.toString() + ", " + p.snd.toString() + ") ";
+		}
+		string += "\nO: ";
+		for (Iterator<Integer> it = O.iterator(); it.hasNext();) {
+			string += it.next().toString() + ", ";
+		}
+		string += "\nL ";
+		for (Iterator<Integer> it = L.iterator(); it.hasNext();) {
+			string += it.next().toString() + ", ";
+		}
+		return string;
 	}
 }

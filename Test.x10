@@ -5,20 +5,20 @@ public class Test {
 class T {
   public void f() {
     async(d[0]) {
-      System.out.println("a5");
+      a5;
     }
   }
   public void run() {
     finish {
       async(d[0]) {
-        System.out.println("a3");
+        a3;
       }
       this.f();
     }
     finish {
       this.f();
       async(d[0]) {
-        System.out.println("a4");
+        a4;
       }
     }
   }
