@@ -3,7 +3,6 @@ package mhp;
 public class MhpAsyncNode extends MhpNode {
 	public MhpNode s;
 	public MhpAsyncNode(MhpNode s){
-		super();
 		this.s = s;
 	}
 	
@@ -16,4 +15,13 @@ public class MhpAsyncNode extends MhpNode {
 		string += ")";
 		return string;
 	}
+	
+	public MhpInfo accept(MhpInfoGenerator gen){
+		return gen.visit(this);
+	}
+	
+	public MhpNode accept(MhpVisitor vis, int level) {
+		return vis.unfold(this, level);
+	}
+
 }

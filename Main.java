@@ -16,8 +16,8 @@ public class Main {
 			MhpVisitor mhp = new MhpVisitor();
 			TreeDumper dumper = new TreeDumper();
 			root.accept(dumper);
+			//root.accept(new TreeFormatter());
 			System.err.println("\n----------MHP----------");
-			root.accept(new TreeFormatter());
 			root.accept(mhp);
 		} catch (ParseException e) {
 			System.out.println(e.toString());

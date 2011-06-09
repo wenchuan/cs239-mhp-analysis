@@ -28,4 +28,10 @@ Print out M info at last
 Problem:
 1. How to handle function calls, more importantly, recursive function calls.
   That func1 calls func1, or func1 calls func2 which calls func1.
+  Answer:
+    I can unfold the loops for a couple of times, and just process the
+    code based on that. And the trick works for function calls both recursive
+    and very deep ones.
 2. How to translate miniX10 structures into these elementary representation.
+  Answer:
+  turn out that I need an auxilary structure for if-else

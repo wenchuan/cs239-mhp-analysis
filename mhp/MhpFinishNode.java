@@ -5,9 +5,9 @@ public class MhpFinishNode extends MhpNode {
 	public MhpNode s;
 
 	public MhpFinishNode(MhpNode s) {
-		super();
 		this.s = s;
 	}
+	
 	public String toString() {
 		String string = "Finish - (";
 		if (s != null)
@@ -17,4 +17,13 @@ public class MhpFinishNode extends MhpNode {
 		string += ")";
 		return string;
 	}
+	
+	public MhpInfo accept(MhpInfoGenerator gen){
+		return gen.visit(this);
+	}
+	
+	public MhpNode accept(MhpVisitor vis, int level) {
+		return vis.unfold(this, level);
+	}
+
 }

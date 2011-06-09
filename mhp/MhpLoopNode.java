@@ -5,7 +5,6 @@ public class MhpLoopNode extends MhpNode {
 	public MhpNode s;
 
 	public MhpLoopNode(MhpNode s) {
-		super();
 		this.s = s;
 	}
 
@@ -18,4 +17,13 @@ public class MhpLoopNode extends MhpNode {
 		string += ")";
 		return string;
 	}
+	
+	public MhpInfo accept(MhpInfoGenerator gen){
+		return gen.visit(this);
+	}
+	
+	public MhpNode accept(MhpVisitor vis, int level) {
+		return vis.unfold(this, level);
+	}
+
 }

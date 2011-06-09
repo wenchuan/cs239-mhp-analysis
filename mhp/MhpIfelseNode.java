@@ -4,7 +4,6 @@ public class MhpIfelseNode extends MhpNode {
 	public MhpNode e, ifnode, elsenode;
 	
 	public MhpIfelseNode(MhpNode s, MhpNode s1, MhpNode s2){
-		super();
 		e = s;
 		ifnode = s1;
 		elsenode = s2;
@@ -25,4 +24,13 @@ public class MhpIfelseNode extends MhpNode {
 		string += ")";
 		return string;
 	}
+	
+	public MhpInfo accept(MhpInfoGenerator gen){
+		return gen.visit(this);
+	}
+	
+	public MhpNode accept(MhpVisitor vis, int level) {
+		return vis.unfold(this, level);
+	}
+
 }
